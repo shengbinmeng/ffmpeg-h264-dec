@@ -52,7 +52,6 @@
 #include "profiles.h"
 #include "rectangle.h"
 #include "thread.h"
-#include "vdpau_compat.h"
 
 static int h264_decode_end(AVCodecContext *avctx);
 
