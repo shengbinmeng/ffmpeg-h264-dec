@@ -1,2 +1,2 @@
 # ffmpeg-h264-dec
-H.264 decoder extarcted from FFmpeg
+H.264 decoder extracted from FFmpeg
