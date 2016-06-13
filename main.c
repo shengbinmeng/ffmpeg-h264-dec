@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "libavcodec/avcodec.h"
 
-#define INBUF_SIZE 8192
+#define READ_SIZE 8192
+#define BUFFER_CAPACITY 8192*10
 
 extern AVCodec ff_h264_decoder;
 
@@ -60,13 +61,13 @@ static void video_decode_example(const char *filename, const char *outfilename)
     int frame_count;
     FILE *f;
     AVFrame *frame;
-    uint8_t inbuf[INBUF_SIZE + AV_INPUT_BUFFER_PADDING_SIZE];
+    uint8_t buffer[BUFFER_CAPACITY];
+    int buf_size = 0;
     AVPacket avpkt;
+    AVCodecParserContext* parser; 
 
     av_init_packet(&avpkt);
 
-    /* set end of buffer to 0 (this ensures that no overreading happens for damaged mpeg streams) */
-    memset(inbuf + INBUF_SIZE, 0, AV_INPUT_BUFFER_PADDING_SIZE);
 
     printf("Decode video file %s to %s\n", filename, outfilename);
 
@@ -90,7 +91,11 @@ static void video_decode_example(const char *filename, const char *outfilename)
     } else {
     	printf("we must parse and send complete frames\n");
     }
+    
+    parser = av_parser_init(AV_CODEC_ID_H264);
 
+	printf("debug point: 1\n");
+	
     /* For some codecs, such as msmpeg4 and mpeg4, width and height
        MUST be initialized there because this information is not
        available in the bitstream. */
@@ -114,35 +119,39 @@ static void video_decode_example(const char *filename, const char *outfilename)
     }
 	
     frame_count = 0;
+    int need_more = 1;
     for (;;) {
-        avpkt.size = fread(inbuf, 1, INBUF_SIZE, f);
-        printf("inbuf: %p, f: %p\n", inbuf, f);
-        if (avpkt.size == 0) {
-        	printf("Read nothing. feof: %d, ferror: %d\n", feof(f), ferror(f));
-            break;
-        }
-
-        /* NOTE1: some codecs are stream based (mpegvideo, mpegaudio)
-           and this is the only method to use them because you cannot
-           know the compressed data size before analysing it.
-
-           BUT some other codecs (msmpeg4, mpeg4) are inherently frame
-           based, so you must call them with all the data for one
-           frame exactly. You must also initialize 'width' and
-           'height' before initializing them. */
-
-        /* NOTE2: some codecs allow the raw parameters (frame size,
-           sample rate) to be changed at any frame. We handle this, so
-           you should also take care of it */
-
-        /* here, we use a stream based decoder (mpeg1video), so we
-           feed decoder and see if it could decode a frame */
-        avpkt.data = inbuf;
-        while (avpkt.size > 0)
-            if (decode_write_frame(outfilename, c, frame, &frame_count, &avpkt, 0) < 0) {
-            	fprintf(stderr, "decode or write error\n");
-                exit(1);
-            }
+    	if (need_more == 1 && buf_size + READ_SIZE <= BUFFER_CAPACITY) {
+    		int bytes_read = fread(buffer + buf_size, 1, READ_SIZE, f);
+			if (bytes_read == 0) {
+				printf("Read nothing. feof: %d, ferror: %d\n", feof(f), ferror(f));
+				break;
+			}
+			buf_size += bytes_read;
+			need_more = 0;
+    	}
+        
+		int bytes_used = av_parser_parse2(parser, c, &avpkt.data, &avpkt.size, buffer, buf_size, 0, 0, AV_NOPTS_VALUE);
+		printf("bytes_used: %d\n", bytes_used);
+		if (avpkt.size == 0) {
+			printf("need more input bytes\n");
+			need_more = 1;
+			continue;
+		}
+		if (bytes_used > 0) {
+			buf_size = buf_size - bytes_used;
+			memcpy(buffer + bytes_used, buffer, buf_size);
+		
+			// we have a packet, decode it
+			while (avpkt.size > 0) {
+				if (decode_write_frame(outfilename, c, frame, &frame_count, &avpkt, 0) < 0) {
+					fprintf(stderr, "decode or write error\n");
+					exit(1);
+				}
+			}
+		}
+                
+        
     }
 
     /* some codecs, such as MPEG, transmit the I and P frame with a

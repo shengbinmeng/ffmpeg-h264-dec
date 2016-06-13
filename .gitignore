@@ -1,3 +1,4 @@
 *.o
 .DS_Store
 h264dec
+*.yuv
