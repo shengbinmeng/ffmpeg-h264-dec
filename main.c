@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include "libavcodec/avcodec.h"
 
 #define READ_SIZE 4096
@@ -100,6 +101,8 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	uint8_t buffer[BUFFER_CAPACITY];
 	AVPacket packet;
 	
+	struct timeval tv_start, tv_end;
+	gettimeofday(&tv_start, NULL);
 	while (!ending) {
 		if (need_more == 1 && buf_size + READ_SIZE <= BUFFER_CAPACITY) {
 			int bytes_read = fread(buffer + buf_size, 1, READ_SIZE, file);
@@ -140,6 +143,8 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	packet.size = 0;
 	decode_write_frame(outfile, codec_ctx, frame, &frame_index, &packet, 1);
 
+	gettimeofday(&tv_end, NULL);
+
 	fclose(file);
 	fclose(outfile);
 
@@ -147,6 +152,10 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	av_free(codec_ctx);
 	av_frame_free(&frame);
 	printf("Done\n");
+
+	float time = (tv_end.tv_sec + (tv_end.tv_usec / 1000000.0)) - (tv_start.tv_sec + (tv_start.tv_usec / 1000000.0));
+	float speed = (frame_index + 1) / time;
+	printf("Decoding time: %.3fs, speed: %.1f FPS\n", time, speed);
 }
 
 
