@@ -77,14 +77,14 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 		exit(1);
 	}
 	
-	AVCodecParserContext* parser = av_parser_init(AV_CODEC_ID_H264);
-	if(!parser) {
-		fprintf(stderr, "Could not create H264 parser\n");
+	if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
+		fprintf(stderr, "Could not open codec\n");
 		exit(1);
 	}
 	
-	if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
-		fprintf(stderr, "Could not open codec\n");
+	AVCodecParserContext* parser = av_parser_init(AV_CODEC_ID_H264);
+	if(!parser) {
+		fprintf(stderr, "Could not create H264 parser\n");
 		exit(1);
 	}
 
@@ -150,6 +150,7 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 
 	avcodec_close(codec_ctx);
 	av_free(codec_ctx);
+	av_parser_close(parser);
 	av_frame_free(&frame);
 	printf("Done\n");
 
