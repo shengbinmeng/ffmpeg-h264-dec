@@ -164,10 +164,12 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	printf("Decoding time: %.3fs, speed: %.1f FPS\n", time, speed);
 }
 
+extern void broadwayTest();
 int main(int argc, char* argv[])
 {
 	if (argc == 1) {
-		h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
+		//h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
+		broadwayTest();
 	} else if (argc == 3) {
 		h264_video_decode(argv[1], argv[2]);
 	} else {
