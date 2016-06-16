@@ -15,7 +15,6 @@ static void yuv_save(unsigned char *buf[], int wrap[], int xsize,int ysize, FILE
 	for (i = 0; i < ysize; i++) {
 		fwrite(buf[0] + i * wrap[0], 1, xsize, f);
 	}
-
 	for (i = 0; i < ysize / 2; i++) {
 		fwrite(buf[1] + i * wrap[1], 1, xsize/2, f);
 	}
@@ -38,7 +37,7 @@ static int decode_write_frame(FILE *file, AVCodecContext *avctx,
 		if (got_frame) {
 			printf("Got frame %d\n", *frame_index);
 			if (file) {
-				yuv_save(frame->data, frame->linesize, avctx->width, avctx->height, file);
+				yuv_save(frame->data, frame->linesize, frame->width, frame->height, file);
 			}
 			(*frame_index)++;
 		}
