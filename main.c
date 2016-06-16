@@ -96,16 +96,23 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	int ending = 0;
 	int need_more = 1;
 	int frame_index = 0;
-	int buf_size = 0;
 	uint8_t buffer[BUFFER_CAPACITY];
+	uint8_t* buf = buffer;
+	int buf_size = 0;
 	AVPacket packet;
 	
 	struct timeval tv_start, tv_end;
 	gettimeofday(&tv_start, NULL);
 	while (!ending) {
 		if (need_more == 1 && buf_size + READ_SIZE <= BUFFER_CAPACITY) {
+			// Move unused data in buffer to front, if any
+			if (buf_size > 0) {
+				memcpy(buffer, buf, buf_size);
+				buf = buffer;
+			}
 			int bytes_read = fread(buffer + buf_size, 1, READ_SIZE, file);
 			if (bytes_read == 0) {
+				// EOF or error
 				ending = 1;
 			} else {
 				buf_size += bytes_read;
@@ -115,7 +122,7 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 		
 		uint8_t* data = NULL;
   		int size = 0;
-		int bytes_used = av_parser_parse2(parser, codec_ctx, &data, &size, buffer, buf_size, 0, 0, AV_NOPTS_VALUE);
+		int bytes_used = av_parser_parse2(parser, codec_ctx, &data, &size, buf, buf_size, 0, 0, AV_NOPTS_VALUE);
 		if (size == 0) {
 			need_more = 1;
 			continue;
@@ -131,10 +138,9 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 				exit(1);
 			}
 			
-			// Move unused data in buffer to front
-			buf_size = buf_size - bytes_used;
-			memcpy(buffer, buffer + bytes_used, buf_size);
-		}		
+			buf_size -= bytes_used;
+			buf += bytes_used;
+		}
 	}
 
 	// Flush the decoder
@@ -157,7 +163,6 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	float speed = (frame_index + 1) / time;
 	printf("Decoding time: %.3fs, speed: %.1f FPS\n", time, speed);
 }
-
 
 int main(int argc, char* argv[])
 {
