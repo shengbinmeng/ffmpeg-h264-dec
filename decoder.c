@@ -14,7 +14,6 @@ typedef unsigned int    u32;
 typedef signed int      i32;
 
 // Function declarations (should usually be in header file)
-u8* broadwayCreateStream(u32 length);
 u32 broadwayInit();
 u8* broadwayCreateStream(u32 length);
 void broadwayPlayStream(u32 length);
