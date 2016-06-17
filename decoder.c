@@ -48,7 +48,6 @@ static void outputFrame (AVFrame *frame) {
     for (int i = 0; i < height / 2; i++) {
         memcpy(v + i * width / 2, frame->data[2] + i * linesize_uv, width / 2);
     }
-    printf("Output frame %d\n", picDisplayNumber);
     broadwayOnPictureDecoded(yuv_data, width, height);
 }
 
@@ -68,7 +67,15 @@ static int decodePacket(AVPacket *packet, int flush) {
     } while (flush && got_frame);
 }
 
-static void playStream(Stream *stream) {
+static void flushDecoder() {
+    av_init_packet(&packet);
+    packet.data = NULL;
+    packet.size = 0;
+    decodePacket(&packet, 1);
+}
+
+// The stream needs parsing.
+static void parsePlayStream(Stream *stream) {
     
     uint8_t *buffer = stream->buffer;
     int buf_size = stream->length;
@@ -86,6 +93,7 @@ static void playStream(Stream *stream) {
         }
         if (bytes_used > 0) {
             // We have data of one packet, decode it; or decode whatever when ending.
+            printf("Feed packet: %d\n", picDecodeNumber);
             av_init_packet(&packet);
             packet.data = data;
             packet.size = size;
@@ -100,22 +108,22 @@ static void playStream(Stream *stream) {
         }
     }
     
-    // Flush
-    av_init_packet(&packet);
-    packet.data = NULL;
-    packet.size = 0;
-    decodePacket(&packet, 1);
+    flushDecoder();
 }
 
-static void decodeAccessUnit(Stream *stream) {
+// The stream is an already-parsed access unit.
+static void playStream(Stream *stream) {
     av_init_packet(&packet);
     packet.data = stream->buffer;
     packet.size = stream->length;
-    int len = decodePacket(&packet, 1);
+    int len = decodePacket(&packet, 0);
     if (len < 0) {
         fprintf(stderr, "Error while decoding frame %d\n", picDecodeNumber);
     }
     picDecodeNumber++;
+    
+    // If the user code doesn't handle the ending of stream, we need to flush everytime to check if any frames for output.
+    //flushDecoder();
 }
 
 u32 broadwayInit() {
@@ -167,6 +175,11 @@ u8* broadwayCreateStream(u32 length) {
 void broadwayPlayStream(u32 length) {
     broadwayStream.length = length;
     playStream(&broadwayStream);
+}
+
+void broadwayParsePlayStream(u32 length) {
+    broadwayStream.length = length;
+    parsePlayStream(&broadwayStream);
 }
 
 void broadwayExit() {

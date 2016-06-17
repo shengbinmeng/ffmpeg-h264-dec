@@ -196,7 +196,7 @@ static void broadway_decode(const char *filename, const char *outfilename)
 	fread(buffer, sizeof(u8), length, finput);
 	fclose(finput);
 	
-	broadwayPlayStream(length);
+	broadwayParsePlayStream(length);
 	
 	broadwayExit();
 	
@@ -206,7 +206,8 @@ static void broadway_decode(const char *filename, const char *outfilename)
 int main(int argc, char* argv[])
 {
 	if (argc == 1) {
-		//h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
+		h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
+	} else if (argc == 2) {
 		broadway_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
 	} else if (argc == 3) {
 		h264_video_decode(argv[1], argv[2]);

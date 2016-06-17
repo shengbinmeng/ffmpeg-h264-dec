@@ -237,7 +237,7 @@
       
     }else{
       this.decode = function decode(typedAr, parInfo) {
-        console.info("Decoding: " + typedAr.length);
+        console.info("Decoding: " + typedAr.length + " bytes");
         // collect infos
         if (parInfo){
           this.infoAr.push(parInfo);
