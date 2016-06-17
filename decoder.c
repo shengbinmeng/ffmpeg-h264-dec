@@ -1,27 +1,8 @@
+#include "decoder.h"
 #include "libavcodec/avcodec.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-// Typedefs (should usually be in header file)
-typedef unsigned char   u8;
-typedef signed char     i8;
-typedef unsigned short  u16;
-typedef signed short    i16;
-typedef unsigned int    u32;
-typedef signed int      i32;
-
-// Function declarations (should usually be in header file)
-u32 broadwayInit();
-u8* broadwayCreateStream(u32 length);
-void broadwayPlayStream(u32 length);
-void broadwayExit();
-
-// Callbacks that user code should provide
-extern void broadwayOnHeadersDecoded(); // not use currently
-extern void broadwayOnPictureDecoded(u8 *buffer, u32 width, u32 height);
 
 extern AVCodec ff_h264_decoder;
 extern AVCodecParser ff_h264_parser;
@@ -67,7 +48,7 @@ static void outputFrame (AVFrame *frame) {
     for (int i = 0; i < height / 2; i++) {
         memcpy(v + i * width / 2, frame->data[2] + i * linesize_uv, width / 2);
     }
-    
+    printf("Output frame %d\n", picDisplayNumber);
     broadwayOnPictureDecoded(yuv_data, width, height);
 }
 
@@ -96,6 +77,7 @@ static void playStream(Stream *stream) {
         uint8_t* data = NULL;
         int size = 0;
         int bytes_used = av_parser_parse2(parser, codec_ctx, &data, &size, buffer, buf_size, 0, 0, AV_NOPTS_VALUE);
+        //printf("bytes_used: %d, size: %d, buf_size: %d\n", bytes_used, size, buf_size);
         if (size == 0) {
             if (bytes_used == buf_size) {
                 // This is the last chunk of data, so we try to parse again.
@@ -207,32 +189,3 @@ u32 broadwayGetMajorVersion() {
 u32 broadwayGetMinorVersion() {
     return 1;
 }
-
-
-// Test the API
-FILE *foutput;
-void broadwayOnPictureDecoded(u8 *buffer, u32 width, u32 height) {
-    fwrite(buffer, width*height*3/2, 1, foutput);
-}
-void broadwayTest()
-{
-    FILE *finput = fopen("test/352x288Foreman.264", "rb");
-    fseek(finput, 0L, SEEK_END);
-    u32 length = (u32)ftell(finput);
-    rewind(finput);
-    
-    broadwayInit();
-    u8* buffer = broadwayCreateStream(length);
-    fread(buffer, sizeof(u8), length, finput);
-    fclose(finput);
-    
-    foutput = fopen("test/352x288Foreman.yuv", "wb");
-    
-    broadwayPlayStream(length);
-    broadwayExit();
-    
-    fclose(finput);
-    fclose(foutput);
-}
-
-

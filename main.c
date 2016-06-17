@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include "libavcodec/avcodec.h"
+#include "decoder.h"
 
 #define READ_SIZE 4096
 #define BUFFER_CAPACITY 4096*4
@@ -164,12 +165,49 @@ static void h264_video_decode(const char *filename, const char *outfilename)
 	printf("Decoding time: %.3fs, speed: %.1f FPS\n", time, speed);
 }
 
-extern void broadwayTest();
+
+// Test the broadway API
+static FILE *foutput;
+
+void broadwayOnPictureDecoded(u8 *buffer, u32 width, u32 height) {
+	fwrite(buffer, width*height*3/2, 1, foutput);
+}
+
+static void broadway_decode(const char *filename, const char *outfilename)
+{
+	FILE *finput = fopen(filename, "rb");
+	if (!finput) {
+		fprintf(stderr, "Could not open '%s'\n", filename);
+		exit(1);
+	}
+	
+	foutput = fopen(outfilename, "wb");
+	if (!foutput) {
+		fprintf(stderr, "Could not open '%s'\n", outfilename);
+		exit(1);
+	}
+	
+	fseek(finput, 0L, SEEK_END);
+	u32 length = (u32)ftell(finput);
+	rewind(finput);
+	
+	broadwayInit();
+	u8* buffer = broadwayCreateStream(length);
+	fread(buffer, sizeof(u8), length, finput);
+	fclose(finput);
+	
+	broadwayPlayStream(length);
+	
+	broadwayExit();
+	
+	fclose(foutput);
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc == 1) {
 		//h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
-		broadwayTest();
+		broadway_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
 	} else if (argc == 3) {
 		h264_video_decode(argv[1], argv[2]);
 	} else {

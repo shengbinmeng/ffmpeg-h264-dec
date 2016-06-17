@@ -1,7 +1,3 @@
-#
-# source files
-#
-
 SRCS := $(shell find . -name "*.c" -not -name "*_template.c")
 
 CFLAGS = -I. -O2 -w -std=c99 -Wno-implicit-function-declaration
@@ -12,6 +8,7 @@ OBJS := $(SRCS:%.c=%.o)
 h264dec.bc: $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+# Use Emscripten tool to make JavaScript decoder (by calling `emmake make`)
 js: h264dec.bc
 	emcc -O2 h264dec.bc --preload-file test/352x288Foreman.264 -o h264dec.html
 
