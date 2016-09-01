@@ -1,4 +1,6 @@
 *.o
 .DS_Store
 h264dec.*
+h264dec
+Decoder.js
 *.yuv

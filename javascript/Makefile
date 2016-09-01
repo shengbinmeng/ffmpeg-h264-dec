@@ -1,9 +1,9 @@
-SRCS := $(shell find ../libavcodec -name "*.c" -not -name "*_template.c")
-SRCS += $(shell find ../libavutil -name "*.c" -not -name "*_template.c")
+SRCS := $(shell find ../ffmpeg-src/libavcodec -name "*.c" -not -name "*_template.c")
+SRCS += $(shell find ../ffmpeg-src/libavutil -name "*.c" -not -name "*_template.c")
 SRCS += ../decoder.c
 
-CFLAGS = -I.. -O2 -w -std=c99 -Wno-implicit-function-declaration
-LDFLAGS = -lm
+CFLAGS := -I../ffmpeg-src/ -O2 -w -std=c99 -Wno-implicit-function-declaration
+LDFLAGS := -lm
 
 OBJS := $(SRCS:%.c=%.o)
 
@@ -14,8 +14,8 @@ ARGS := -O3 --memory-init-file 0 --llvm-opts 3 --llvm-lto 3 \
 		--pre-js DecoderPre.js \
 		--post-js DecoderPost.js
 
-Decoder.js : $(OBJS)
-	$(CC) $(ARGS) -o $@ $^
+Decoder.js: $(OBJS)
+	emcc $(ARGS) -o $@ $^
 	
 .PHONY: clean
 clean:

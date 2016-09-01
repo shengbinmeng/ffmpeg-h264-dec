@@ -4,8 +4,8 @@
 # read the configure help carefully before you want to change the following options
 #
 ./configure \
-	--disable-asm \
-	--disable-pthreads \
+    --disable-asm \
+    --disable-pthreads \
     --disable-doc \
     --disable-encoders \
     --disable-muxers \

@@ -2,21 +2,32 @@
 
 H.264 decoder extracted from FFmpeg
 
+## Extraction
+
+Files related to H.264 decoding are extracted from [FFmpeg](https://github.com/FFmpeg/FFmpeg) and put in the folder ./ffmpeg-src.
+
+The checkout commit is [2f76157eb05bf63725f96167feda6b2e07501c7e](https://github.com/FFmpeg/FFmpeg/commit/2f76157eb05bf63725f96167feda6b2e07501c7e).
+
+Some files may be modified (a little).
+
 ## Build the decoder
 
-Just run `make`.
+Run `make`, and you will get the executable `h264dec`.
 
 ## Compile into JavaScript
 
 With the tool [Emscripten](http://kripken.github.io/emscripten-site/), the C code can also be compiled into JavaScript:
 
-`emmake make js`
+- Run `emmake make h264dec.html` to get h264dec.html (and its supporting files), which can be open in a browser.
+For Chrome and IE, you will [need to](http://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html) serve the files using a web server. For Safari, it just works.
 
-(`emmake` comes with Emscripten)
+- Run `emmake make h264dec.node.js` to get h264dec.node.js, which can be executed by Node.js: `node h264dec.node.js`.
 
-## TS file player
+(`emmake` comes with Emscripten; `make clean` is usually needed before building for another platform.)
 
-In the folder ./js, run `emmake make` will build Decoder.js, which is used in a JavaScript TS file player demo: <https://github.com/shengbinmeng/javascript-ts-player>.
+## Use in JavaScript player
+
+In the folder ./javascript, run `emmake make` to build Decoder.js, which is used in a JavaScript TS file player demo: <https://github.com/shengbinmeng/javascript-ts-player>.
 
 ## Future work
 
