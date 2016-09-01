@@ -2,6 +2,10 @@
 
 H.264 decoder extracted from FFmpeg
 
+## Build the decoder
+
+Just run `make`.
+
 ## Compile into JavaScript
 
 With the tool [Emscripten](http://kripken.github.io/emscripten-site/), the C code can also be compiled into JavaScript:
