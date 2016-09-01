@@ -16,7 +16,7 @@ In the folder ./js, run `emmake make` will build Decoder.js, which is used in a 
 
 ## Future work
 
-1. Compare performance with [Broadway's](https://github.com/mbebenita/Broadway) that is based on Android's sofeware H.264 decoder. No big difference maybe, but the latter only supports baseline profile.
+1. Compare performance with [Broadway's](https://github.com/mbebenita/Broadway) that is based on Android's software H.264 decoder. No big difference maybe, but the latter only supports baseline profile.
 
 2. Optimize JavaScript code generation, e.g., investigate Emscripten flags, use SIMD.
 
