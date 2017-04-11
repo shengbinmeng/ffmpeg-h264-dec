@@ -208,22 +208,10 @@ static void broadway_decode(const char *filename, const char *outfilename)
 
 int main(int argc, char* argv[])
 {
-	if (argc == 1) {
-		printf("Usage: %s input_file output_file\n\n", argv[0]);
-		printf("The following is a demo run: %s test/352x288Foreman.264 test/352x288Foreman.yuv\n\n", argv[0]);
-		h264_video_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
-		printf("\nThe above is a demo run: %s test/352x288Foreman.264 test/352x288Foreman.yuv\n\n", argv[0]);
-		printf("Usage: %s input_file output_file\n", argv[0]);
-	} else if (argc == 2) {
-		printf("Usage: %s input_file output_file\n\n", argv[0]);
-		printf("The following is a demo run: %s test/352x288Foreman.264 test/352x288Foreman.yuv\n\n", argv[0]);
-		broadway_decode("test/352x288Foreman.264", "test/352x288Foreman.yuv");
-		printf("\nThe above is a demo run: %s test/352x288Foreman.264 test/352x288Foreman.yuv\n\n", argv[0]);
-		printf("Usage: %s input_file output_file\n", argv[0]);
-	} else if (argc == 3) {
+	if (argc == 3) {
 		h264_video_decode(argv[1], argv[2]);
 	} else {
-		printf("Usage: %s input_file output_file\n", argv[0]);
+		printf("Usage: %s <input_file> <output_file>\n", argv[0]);
 	}
 	return 0;		
 }
