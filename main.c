@@ -5,7 +5,7 @@
 #include "decoder.h"
 
 #define READ_SIZE 4096
-#define BUFFER_CAPACITY 4096*4
+#define BUFFER_CAPACITY 4096*64
 
 extern AVCodec ff_h264_decoder;
 extern AVCodecParser ff_h264_parser;
