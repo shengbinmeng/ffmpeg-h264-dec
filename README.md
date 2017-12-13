@@ -1,5 +1,7 @@
 # ffmpeg-h264-dec
 
+[![Build Status](https://travis-ci.org/shengbinmeng/ffmpeg-h264-dec.svg?branch=master)](https://travis-ci.org/shengbinmeng/ffmpeg-h264-dec)
+
 H.264 decoder extracted from FFmpeg
 
 ## Extraction
