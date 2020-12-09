@@ -212,6 +212,7 @@ int main(int argc, char* argv[])
 		h264_video_decode(argv[1], argv[2]);
 	} else {
 		printf("Usage: %s <input_file> <output_file>\n", argv[0]);
+		//h264_video_decode("test/352x288Foreman.264", "test.yuv");
 	}
 	return 0;		
 }

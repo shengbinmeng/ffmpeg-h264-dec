@@ -20,8 +20,8 @@ Run `make`, and you will get the executable `h264dec`.
 
 With the tool [Emscripten](http://kripken.github.io/emscripten-site/), the C code can also be compiled into JavaScript:
 
-- Run `emmake make h264dec.html` to get h264dec.html (and its supporting files), which can be open in a browser.
-For Chrome and IE, you will [need to](http://kripken.github.io/emscripten-site/docs/getting_started/Tutorial.html) serve the files using a web server. For Safari, it just works.
+- Run `emmake make h264dec.html` to get h264dec.html (and its supporting files), which can be open in a browser when served using a web server (e.g., with `python3 -m http.server`).
+Note that since we can not pass arguments to HTML pages, you should modify `main.c` (see the commented line in the main function) to let the program starts decoding without arguments.
 
 - Run `emmake make h264dec.node.js` to get h264dec.node.js, which can be executed by Node.js: `node h264dec.node.js`.
 
