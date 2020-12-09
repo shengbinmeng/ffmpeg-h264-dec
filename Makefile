@@ -11,7 +11,7 @@ h264dec: $(OBJS)
 # The following targets are expected to be used with Emscripten (by calling `emmake make`).
 
 h264dec.bc: $(OBJS)
-	emcc -o $@ $^ $(LDFLAGS)
+	emcc -r -o $@ $^ $(LDFLAGS)
 
 h264dec.html: h264dec.bc
 	emcc -O2 h264dec.bc --preload-file test/352x288Foreman.264 -o h264dec.html
